@@ -8,10 +8,10 @@ export class GamesController {
         'New game is create succesfully';
     }
 
-    @Get()
-    findAll(@Query() query: ListAllEntities) {
-        return `This action returns all games (limit: ${query.limit} items)`;
-    }
+    // @Get()
+    // findAll(@Query() query: ListAllEntities) {
+    //     return `This action returns all games (limit: ${query.limit} items)`;
+    // }
 
     @Put(':id')
     findOne(@Param('id') id: string) {
