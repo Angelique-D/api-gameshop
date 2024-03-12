@@ -3,6 +3,7 @@ import { SignupDto } from './dto/signup.dto';
 import { SigninDto } from './dto/signin.dto';
 import { AuthService } from './auth.service';
 import { ResetPasswordDemandDto } from './dto/resetPasswordDemand.dto';
+import { ResetPasswordConfirmationDto } from './dto/resetPasswordConfirmation.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -20,5 +21,10 @@ export class AuthController {
     @Post("reset-password")
     resetPasswordDemand(@Body() resetPasswordDemandDto: ResetPasswordDemandDto) {
         return this.authService.resetPasswordDemand(resetPasswordDemandDto)
+    }
+
+    @Post("reset-password-confirmation")
+    resetPasswordConfirmation(@Body() resetPasswordConfirmationDto: ResetPasswordConfirmationDto) {
+        return this.authService.resetPasswordConfirmation(resetPasswordConfirmationDto)
     }
 }

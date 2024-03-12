@@ -1,12 +1,14 @@
 import { ConflictException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { SignupDto } from './dto/signup.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
-import * as bcrypt from 'bcrypt'
+import * as bcrypt from 'bcrypt';
+import * as speakeasy from 'speakeasy';
 import { MailerService } from 'src/mailer/mailer.service';
 import { SigninDto } from './dto/signin.dto';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { ResetPasswordDemandDto } from './dto/resetPasswordDemand.dto';
+import { ResetPasswordConfirmationDto } from './dto/resetPasswordConfirmation.dto';
 
 @Injectable()
 export class AuthService {
@@ -74,5 +76,40 @@ export class AuthService {
         // Vérifier si l'utilisateur est déjà inscrit
         const user = await this.prismaService.user.findUnique({ where: {email} });
         if (!user) throw new NotFoundException('User not found');
+        const code = speakeasy.totp({
+            secret: this.configService.get("OTP_CODE"),
+            digits: 5,
+            step: 60 * 15,
+            encoding: "base32"
+        })
+        // A changer avec l'url qui mène au formulaire pour le changement de mot de pass du front
+        const url = "http://localhost:3000/auth/reset-password-confirmation"
+        await this.mailerService.sendResetPassword(email, url, code)
+        return {data: "Reset password mail has been sent"}
+    }
+
+    async resetPasswordConfirmation(resetPasswordConfirmationDto: ResetPasswordConfirmationDto) {
+        // throw new Error('Method not implemented.');
+        const { code, email, password } = resetPasswordConfirmationDto;
+
+        const user = await this.prismaService.user.findUnique({ where: { email } });
+        if (!user) throw new NotFoundException('User not found');
+
+        const isTheSameCode = speakeasy.totp.verify({
+            secret: this.configService.get('OTP_CODE'),
+            token: code,
+            digits: 5,
+            step: 60 * 15,
+            encoding: "base32",
+        });
+        if(!isTheSameCode) throw new UnauthorizedException("Invalid/expired token");
+
+        const hash = await bcrypt.hash(password, 10);
+
+        await this.prismaService.user.update({
+            where: { email }, 
+            data: { password: hash }
+        });
+        return {data: "Password updated"};
     }
 }
