@@ -16,7 +16,10 @@ datasource db {
 model Game {
   gameId Int @id @default(autoincrement())
   name String @db.VarChar(65)
-  releasedate DateTime @db.DateTime()
+  description String @db.VarChar(255)
+  image String @db.VarChar(255)
+  price Decimal @db.Decimal(5, 2) @default(0)
+  releasedate DateTime @db.Date()
   createAt DateTime @default(now())
   updateAt DateTime @updatedAt
 }
@@ -28,4 +31,24 @@ model User {
   password String @db.VarChar(255)
   createAt DateTime @default(now())
   updateAt DateTime @updatedAt
+  posts Post[] @relation("user_posts")
+  comments Comment[] @relation("user_comments")
+}
+
+model Post {
+  postId Int @id @default(autoincrement())
+  title String @db.VarChar(255)
+  body String
+  userId Int
+  user User @relation("user_posts", fields: [userId], references: [userId], onUpdate: Cascade, onDelete: Cascade)
+  comments Comment[] @relation("post_comments")
+}
+
+model Comment {
+  commentId Int @id @default(autoincrement())
+  content String @db.VarChar(255)
+  postId Int
+  userId Int
+  post Post @relation("post_comments", fields: [postId], references: [postId], onUpdate: Cascade, onDelete: Cascade)
+  user User @relation("user_comments", fields: [userId], references: [userId], onUpdate: Cascade, onDelete: Cascade)
 }
