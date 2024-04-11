@@ -4,11 +4,14 @@ import { CommentService } from './comment.service';
 import { CreateCommentDto } from './dto/createComment.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { UpdateCommentDto } from './dto/updateComment.dto';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
+@ApiTags("Comments")
 @Controller('comments')
 export class CommentController {
     constructor(private readonly commentService: CommentService) {}
 
+    @ApiBearerAuth()
     @UseGuards(AuthGuard("jwt"))
     @Post("create")
     create(@Req() request: Request, @Body() createCommentDto: CreateCommentDto) {
@@ -16,6 +19,7 @@ export class CommentController {
         return this.commentService.create(userId, createCommentDto)
     }
 
+    @ApiBearerAuth()
     @UseGuards(AuthGuard("jwt"))
     @Delete("delete/:id")
     delete(
@@ -27,6 +31,7 @@ export class CommentController {
         return this.commentService.delete(commentId, userId, postId)
     }
 
+    @ApiBearerAuth()
     @UseGuards(AuthGuard("jwt"))
     @Put("update/:id")
     update(

@@ -4,7 +4,9 @@ import { AuthGuard } from '@nestjs/passport';
 import { CreatePostDto } from './dto/createPost.dto';
 import { Request } from 'express';
 import { UpdatePostDto } from './dto/updatePost.dto';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
+@ApiTags("Posts")
 @Controller('posts')
 export class PostController {
     constructor(private readonly postService: PostService) { }
@@ -14,6 +16,7 @@ export class PostController {
         return this.postService.getAll();
     }
 
+    @ApiBearerAuth()
     @UseGuards(AuthGuard("jwt"))
     @Post("create")
     create(@Body() createPostDto: CreatePostDto, @Req() request: Request) {
@@ -21,6 +24,7 @@ export class PostController {
         return this.postService.create(createPostDto, userId);
     }
 
+    @ApiBearerAuth()
     @UseGuards(AuthGuard("jwt"))
     @Delete("delete/:id")
     delete(@Param("id", ParseIntPipe) postId: number, @Req() request: Request) {
@@ -28,6 +32,7 @@ export class PostController {
         return this.postService.delete(postId, userId);
     }
 
+    @ApiBearerAuth()
     @UseGuards(AuthGuard("jwt"))
     @Put("update/:id")
     update(

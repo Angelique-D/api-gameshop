@@ -1,5 +1,5 @@
 import { Controller, Get, Query, Post, Body, Put, Param, Delete} from '@nestjs/common';
-import { CreateGameDto } from './dto/create-game.dto';
+import { CreateGameDto } from './game/dto/create-game.dto';
 
 @Controller('games')
 export class GamesController {
